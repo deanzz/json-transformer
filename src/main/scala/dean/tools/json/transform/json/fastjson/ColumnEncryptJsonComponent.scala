@@ -7,7 +7,7 @@ trait ColumnEncryptJsonComponent extends JsonPluginComponent {
 
   class ColumnEncryptJson extends JsonPlugin[OldColumnEncryptParam] {
     override def fromOld(json: JSONObject): OldColumnEncryptParam = {
-      val retainOldColumn = if (json.containsKey("retainOldColumn")) json.getBooleanValue("retainOldColumn") else false
+      val retainOldColumn = if (json.containsKey("retainOldColumn")) Some(json.getBooleanValue("retainOldColumn")) else None
       val selectedArr = if (json.containsKey("selected")) Some(json.getJSONArray("selected")) else None
       OldColumnEncryptParam(selectedArr, retainOldColumn)
     }
@@ -21,7 +21,7 @@ trait ColumnEncryptJsonComponent extends JsonPluginComponent {
           newJson.put("selectedColumns", selectedColumnsJson)
       }
 
-      newJson.put("retainOldColumn", oldObj.retainOldColumn)
+      oldObj.retainOldColumn.map(v => newJson.put("retainOldColumn", v))
 
       rootJson.add(newJson)
       rootJson.toJSONString
@@ -29,7 +29,7 @@ trait ColumnEncryptJsonComponent extends JsonPluginComponent {
 
   }
   case class OldColumnEncryptParam(selected: Option[JSONArray],
-                                   retainOldColumn: Boolean = false)
+                                   retainOldColumn: Option[Boolean])
 }
 
 

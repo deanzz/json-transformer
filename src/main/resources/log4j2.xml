@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" strict="true" name="PaasLog4jConfig"
+	monitorInterval="60" packages="com.kongming.paas.log.plugins">
+	<Properties>
+		<Property name="normal">logs/log.log</Property>
+		<Property name="error">logs/error.log</Property>
+	</Properties>
+	<Filter type="ThresholdFilter" level="trace" />
+
+	<Appenders>
+		<Appender type="Console" name="STDOUT" target="SYSTEM_OUT">
+			<Layout type="PatternLayout" pattern="%m%n" />
+		</Appender>
+		<Appender type="Console" name="FLOW">
+			<Layout type="PatternLayout" pattern="%d %p %C{1}.%M %m %ex%n" />
+			<!-- class and line number -->
+			<Filters>
+				<Filter type="MarkerFilter" marker="FLOW" onMatch="ACCEPT"
+					onMismatch="NEUTRAL" />
+				<Filter type="MarkerFilter" marker="EXCEPTION" onMatch="ACCEPT"
+					onMismatch="DENY" />
+			</Filters>
+		</Appender>
+		<Appender type="RollingFile" name="normal" fileName="${normal}"
+			filePattern="${normal}.%d{yyyy-MM-dd}" immediateFlush="true" append="true">
+			<Layout type="PatternLayout">
+				<Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+			</Layout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"
+					modulate="true" />
+			</Policies>
+		</Appender>
+		<Appender type="RollingFile" name="error" fileName="${error}"
+			filePattern="${error}.%d{yyyy-MM-dd}" immediateFlush="true" append="true">
+			<Layout type="PatternLayout">
+				<Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+			</Layout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"
+					modulate="true" />
+			</Policies>
+			<Filters>
+				<Filter type="MarkerFilter" marker="EXCEPTION" onMatch="ACCEPT"
+					onMismatch="DENY" />
+			</Filters>
+		</Appender>
+	</Appenders>
+
+	<Loggers>
+		<Root level="info">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="normal" />
+			<AppenderRef ref="error" />
+		</Root>
+	</Loggers>
+
+</Configuration>

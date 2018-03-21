@@ -7,7 +7,7 @@ trait ColumnTransformRowJsonComponent extends JsonPluginComponent {
 
   class ColumnTransformRowJson extends JsonPlugin[OldColumnTransformRowParam] {
     override def fromOld(json: JSONObject): OldColumnTransformRowParam = {
-      val notZero = if (json.containsKey("notZero")) json.getBooleanValue("notZero") else false
+      val notZero = if (json.containsKey("notZero")) Some(json.getBooleanValue("notZero")) else None
       val analysisColumns = if (json.containsKey("analysisColumns")) Some(json.getJSONArray("analysisColumns")) else None
       OldColumnTransformRowParam(analysisColumns, notZero)
     }
@@ -21,7 +21,7 @@ trait ColumnTransformRowJsonComponent extends JsonPluginComponent {
           newJson.put("selectedColumns", selectedColumnsJson)
       }
 
-      newJson.put("notZero", oldObj.notZero)
+      oldObj.notZero.map(v => newJson.put("notZero", v))
 
       rootJson.add(newJson)
       rootJson.toJSONString
@@ -29,7 +29,7 @@ trait ColumnTransformRowJsonComponent extends JsonPluginComponent {
 
   }
   case class OldColumnTransformRowParam(analysisColumns: Option[JSONArray],
-                                        notZero: Boolean = false)
+                                        notZero: Option[Boolean])
 }
 
 

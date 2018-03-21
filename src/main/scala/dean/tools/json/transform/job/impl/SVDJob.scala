@@ -4,10 +4,10 @@ import com.mongodb.client.result.UpdateResult
 import dean.tools.json.transform.db.dummy.DummyDBComponent
 import dean.tools.json.transform.db.mongo.{MongoDBComponent, WorkFlowParam}
 import dean.tools.json.transform.job.JobComponent
-import dean.tools.json.transform.json.fastjson.MissDataFillJsonComponent
+import dean.tools.json.transform.json.fastjson.SVDJsonComponent
 
-class MissDataFillJob extends JobComponent[WorkFlowParam, UpdateResult]
-  with DummyDBComponent with MissDataFillJsonComponent {
+class SVDJob extends JobComponent[WorkFlowParam, UpdateResult]
+  with DummyDBComponent with SVDJsonComponent {
   override val db = new MongoDB
-  override val json  = new MissDataFillJson
+  override val json  = new SVDJson
 }

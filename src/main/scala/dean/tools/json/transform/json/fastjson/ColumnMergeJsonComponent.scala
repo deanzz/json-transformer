@@ -15,7 +15,7 @@ trait ColumnMergeJsonComponent extends JsonPluginComponent {
       } else None
 
       val position = if (json.containsKey("position")) Some(json.getString("position")) else None
-      val retainOldColumnName = if (json.containsKey("retainOldColumnName")) json.getBooleanValue("retainOldColumnName") else false
+      val retainOldColumnName = if (json.containsKey("retainOldColumnName")) Some(json.getBooleanValue("retainOldColumnName")) else None
       val selectedArr = if (json.containsKey("selected")) Some(json.getJSONArray("selected")) else None
       OldColumnMergeParam(columnName, position, selectedArr, retainOldColumnName)
     }
@@ -37,7 +37,7 @@ trait ColumnMergeJsonComponent extends JsonPluginComponent {
       }
 
       oldObj.position.map(v => newJson.put("position", v))
-      newJson.put("retainOldColumnName", oldObj.retainOldColumnName)
+      oldObj.retainOldColumnName.map(v => newJson.put("retainOldColumnName", v))
 
       rootJson.add(newJson)
       rootJson.toJSONString
@@ -47,7 +47,7 @@ trait ColumnMergeJsonComponent extends JsonPluginComponent {
   case class OldColumnMergeParam(columnName: Option[String],
                                position: Option[String],
                                selected: Option[JSONArray],
-                               retainOldColumnName: Boolean = false)
+                               retainOldColumnName: Option[Boolean])
 }
 
 

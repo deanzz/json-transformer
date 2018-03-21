@@ -16,13 +16,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait LaunchComponent[R <: WorkFlowParam, U] {
   this: DBPluginComponent =>
   val db: DBPlugin[R, U]
+  val log = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
   def launch: Future[Seq[(NodeType, U)]] = {
     val filterNodesConfMap: Map[NodeType, String] = ConfigurationFactory.get.getConfigList("filter.nodes").asScala.map(FilterNode.apply).toMap
     val nodeJobMap = new mutable.HashMap[NodeType, JobComponent[R, U]]
     val filterNodeTypes = filterNodesConfMap.keys.toSeq
-    val filterNodes = Await.result(db.queryByNodeTypes(filterNodeTypes), 10 second)
-    println(s"filterNodes.size = ${filterNodes.size}")
+    val filterNodes = Await.result(db.queryByNodeTypes(filterNodeTypes), 60 second)
+    log.info(s"filterNodes.size = ${filterNodes.size}")
 
     val futureSeq = filterNodes.map {
       n =>
@@ -33,8 +34,8 @@ trait LaunchComponent[R <: WorkFlowParam, U] {
         })
         val f = job.work(n)
         f.onComplete {
-          case Success(_) => println(s"${n.nodeType.name()} succeed")
-          case Failure(e) => println(s"${n.nodeType.name()} failed, ${e.toString}")
+          case Success(_) => log.info(s"${n.nodeType.name()} ${n._id} succeed")
+          case Failure(e) => log.info(s"${n.nodeType.name()} ${n._id} failed, ${e.toString}")
         }
         f.map((n.nodeType, _))
     }

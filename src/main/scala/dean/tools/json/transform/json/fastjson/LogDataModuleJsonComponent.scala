@@ -12,8 +12,8 @@ trait LogDataModuleJsonComponent extends JsonPluginComponent{
       val typeColumn = if (json.containsKey("typeColumn")) Some(json.getJSONArray("typeColumn")) else None
       val calculateRuls = if(json.containsKey("calculateRuls")) Some(json.getJSONArray("calculateRuls")) else None
       val dataFilters = if(json.containsKey("dataFilters")) Some(json.getJSONArray("dataFilters")) else None
-
-      OldLogDataModuleParam(andOr, idColumn, typeColumn, calculateRuls, dataFilters)
+      val wholeCombination = if(json.containsKey("wholeCombination")) Some(json.getBooleanValue("wholeCombination")) else None
+      OldLogDataModuleParam(andOr, idColumn, typeColumn, calculateRuls, dataFilters, wholeCombination)
     }
 
     override def toNew(oldObj: OldLogDataModuleParam): String = {
@@ -34,6 +34,7 @@ trait LogDataModuleJsonComponent extends JsonPluginComponent{
       oldObj.andOr.map(v => newJson.put("andOr", v))
       oldObj.calculateRuls.map(v => newJson.put("calculateRuls", v))
       oldObj.dataFilters.map(v => newJson.put("dataFilters", v))
+      oldObj.wholeCombination.map(v => newJson.put("wholeCombination", v))
 
       rootJson.add(newJson)
       rootJson.toJSONString
@@ -45,7 +46,7 @@ trait LogDataModuleJsonComponent extends JsonPluginComponent{
                                    typeColumn: Option[JSONArray],
                                    calculateRuls: Option[JSONArray],
                                    dataFilters: Option[JSONArray],
-                                   wholeCombination: Boolean = false)
+                                   wholeCombination: Option[Boolean])
 }
 
 
