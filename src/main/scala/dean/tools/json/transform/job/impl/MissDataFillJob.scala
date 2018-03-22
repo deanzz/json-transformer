@@ -1,13 +1,13 @@
 package dean.tools.json.transform.job.impl
 
-import com.mongodb.client.result.UpdateResult
+import org.mongodb.scala.BulkWriteResult
 import dean.tools.json.transform.db.dummy.DummyDBComponent
-import dean.tools.json.transform.db.mongo.{MongoDBComponent, WorkFlowParam}
+import dean.tools.json.transform.db.mongo.{MongoDBComponent, MongoWorkFlowParam}
 import dean.tools.json.transform.job.JobComponent
 import dean.tools.json.transform.json.fastjson.MissDataFillJsonComponent
 
-class MissDataFillJob extends JobComponent[WorkFlowParam, UpdateResult]
-  with DummyDBComponent with MissDataFillJsonComponent {
-  override val db = new MongoDB
+class MissDataFillJob extends JobComponent[MongoWorkFlowParam, BulkWriteResult]
+  with MissDataFillJsonComponent {
+
   override val json  = new MissDataFillJson
 }

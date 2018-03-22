@@ -5,20 +5,20 @@ import dean.tools.json.transform.conf.ConfigurationFactory
 import dean.tools.json.transform.db.DBPluginComponent
 import org.bson.codecs.configuration.CodecRegistries.{fromCodecs, fromProviders, fromRegistries}
 import org.bson.codecs.configuration.CodecRegistry
-import org.mongodb.scala.MongoClient
-import org.mongodb.scala.bson.ObjectId
+import org.mongodb.scala.{BulkWriteResult, MongoClient}
+import org.mongodb.scala.bson.Document
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
-import org.mongodb.scala.model.Filters.{and, equal, in, notEqual}
+import org.mongodb.scala.model.Filters.{and, in, notEqual}
 import org.mongodb.scala.model.Projections.include
-import org.mongodb.scala.model.Updates.{combine, set}
-import org.mongodb.scala.result.UpdateResult
+import org.mongodb.scala.model.Updates.set
+import org.mongodb.scala.model.{UpdateOneModel, WriteModel}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait MongoDBComponent extends DBPluginComponent {
 
-  class MongoDB extends DBPlugin[WorkFlowParam, UpdateResult] {
+  class MongoDB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
     private val uri = ConfigurationFactory.get.getString("db.mongo.uri")
     private val dbName = ConfigurationFactory.get.getString("db.mongo.dbName")
     private val db = MongoClient(uri).getDatabase(dbName)
@@ -29,29 +29,43 @@ trait MongoDBComponent extends DBPluginComponent {
     private implicit val codecRegistry: CodecRegistry = fromRegistries(
       DEFAULT_CODEC_REGISTRY,
       fromCodecs(new NodeTypeCodec),
-      fromProviders(classOf[WorkFlowParam])
+      fromProviders(classOf[MongoWorkFlowParam])
     )
 
-    private val collection = db.getCollection[WorkFlowParam](collectionName).withCodecRegistry(codecRegistry)
+    private val collection = db.getCollection[MongoWorkFlowParam](collectionName).withCodecRegistry(codecRegistry)
+    private val documentCollection = db.getCollection[Document](collectionName)//.withCodecRegistry(codecRegistry)
 
+    //val log = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
-    override def queryByNodeTypes(nodeTypes: Seq[NodeType]): Future[Seq[WorkFlowParam]] = {
-      if (nodeTypes.isEmpty) Future(Seq.empty[WorkFlowParam])
+    override def queryByNodeTypes(nodeTypes: Seq[NodeType]): Future[Seq[MongoWorkFlowParam]] = {
+      if (nodeTypes.isEmpty) Future(Seq.empty[MongoWorkFlowParam])
       else {
-        ////////////// todo remove limit(1)
-        collection.find(and(in("nodeType", nodeTypes: _*), notEqual("param", ""), notEqual("param", "[]"), notEqual("param", null), notEqual("param", "{}"))).projection(include("id" ,"nodeType", "param"))/*.limit(1)*/.toFuture()
+        collection.find(
+          and(in("nodeType", nodeTypes: _*),
+            notEqual("param", ""),
+            notEqual("param", "[]"),
+            notEqual("param", null),
+            notEqual("param", "{}"))).projection(include("id" ,"nodeType", "param")).toFuture()
       }
     }
 
-    override def updateParam(workflow: WorkFlowParam, param: String): Future[UpdateResult] = {
-      val filter = and(equal("_id", workflow._id/*new ObjectId(workflow.id)*/))
-      val update = combine(set("param", param))
-      collection.updateOne(filter, update).toFuture()
-    }
+    override def updateManyParam(workflowWithParamSeq: Seq[(MongoWorkFlowParam, String)]): Future[BulkWriteResult] = {
 
+      /*val seq = workflowWithParamSeq.filterNot(_._2.contains("specifiedColumns")).map{
+        case (w, s) =>
+          s"${w.nodeType} ${w._id}: $s"
+      }.mkString("\n")
+      log.info(s"workflowWithParamSeq:\n$seq")*/
+
+      val writes: Seq[WriteModel[_ <: Document]] = workflowWithParamSeq.map{
+        case (w, newJson) =>
+          UpdateOneModel(Document("_id" -> w._id), set("param", newJson))
+      }
+
+      documentCollection.bulkWrite(writes).toFuture()
+    }
   }
 
 }
 
-case class WorkFlowParam(_id: ObjectId, nodeType: NodeType, param: String)
 

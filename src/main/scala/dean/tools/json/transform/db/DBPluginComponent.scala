@@ -9,7 +9,7 @@ trait DBPluginComponent {
   trait DBPlugin[R, U]{
     def queryByNodeTypes(nodeTypes: Seq[NodeType]): Future[Seq[R]]
 
-    def updateParam(workflow: R, newParam: String): Future[U]
+    def updateManyParam(workflowWithParamSeq: Seq[(R, String)]): Future[U]
   }
 
 
