@@ -205,7 +205,7 @@ trait MongoDBComponent extends DBPluginComponent {
 ```
 下游的组件没什么特别的，就是根据自身的特性，实现接口中的方法，这里是使用了"mongo-scala-driver"驱动实现的访问mongodb的方法。
 
-###### 数据访问层dummy测试组件 DummyBComponent
+###### 数据访问层dummy测试组件 DummyDBComponent
 ```scala
 trait DummyDBComponent extends DBPluginComponent {
   class MongoDB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
