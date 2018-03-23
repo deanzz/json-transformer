@@ -1,14 +1,14 @@
 # 如何只依靠Scala的语言特性实现高逼格的依赖注入
 
->什么是依赖注入？
-对象是面向对象世界中的节本组成单元，依赖注入将对象组合在一起。以最简单的方式看，依赖注入所做的事情就是通过构造器或setter方法将依赖注入到对象。
-如果使用适当的容器，我们还可以将系统每个组件的依赖都抽取到配置文件或配置代码中，并在需要的时候由容器完成注入，这就是高逼格的依赖注入。
-高逼格的依赖注入的好处其实就是【解耦】，
+>什么是依赖注入？<br/>
+对象是面向对象世界中的节本组成单元，依赖注入将对象组合在一起。以最简单的方式看，依赖注入所做的事情就是通过构造器或setter方法将依赖注入到对象。<br/>
+如果使用适当的容器，我们还可以将系统每个组件的依赖都抽取到配置文件或配置代码中，并在需要的时候由容器完成注入，这就是高逼格的依赖注入。<br/>
+依赖注入的好处其实就是【解耦】，<br/>
 如果配合接口、抽象类等使用，还会收获易扩展、易维护的好处。
 
->Scala如何实现？
-在Scala中可以使用Java中传统的依赖注入框架，比如Guice，但是无一例外，他们都需要一个外部的框架来起作用。
-使用Scala也可以在不使用任何框架的情况下，依靠Cake模式实现高逼格的依赖注入，这就是今天要讲的主要内容。
+>Scala如何实现？<br/>
+在Scala中可以使用Java中传统的依赖注入框架，比如Guice，但是无一例外，他们都需要一个外部的框架来起作用。<br/>
+使用Scala也可以在不使用任何框架的情况下，依靠Cake模式实现高逼格的依赖注入，这就是今天要讲的主要内容。<br/>
 下面我们来看一个真实的例子。
 
 ## 需求
@@ -51,7 +51,7 @@
 ## 编码
 ### 接口定义
 首先看一下各层次的抽象接口。
-#### 数据访问层 DBPluginComponent
+###### 数据访问层 DBPluginComponent
 ```scala
 trait DBPluginComponent {
   trait DBPlugin[R, U]{
@@ -64,7 +64,7 @@ trait套trait是不是看着很新鲜，的确这种写法不常用，但是这�
 第一步，先定义将要被注入的依赖。
 此处定义了将要被注入的依赖：数据访问组件。
 
-#### json解析层 JsonPluginComponent
+###### json解析层 JsonPluginComponent
 ```scala
 trait JsonPluginComponent {
   trait JsonPlugin[O] {
@@ -89,7 +89,7 @@ trait JsonPluginComponent {
 此处定义了将要被注入的依赖：json解析组件。
 fromOld方法是将旧版json转为中间结构，toNew方法将中间结构转为新版json，transform方法被外部调用。
 
-#### 日志输出层 LoggerComponent
+###### 日志输出层 LoggerComponent
 ```scala
 trait LoggerComponent {
   trait Logger {
@@ -104,7 +104,7 @@ trait LoggerComponent {
 ```
 此处定义了需要注入的依赖：日志输出组件
 
-#### job执行任务层 JobComponent
+###### job执行任务层 JobComponent
 ```scala
 trait JobComponent[R <: NodeTypeWithParam] {
   this: JsonPluginComponent =>
@@ -128,7 +128,7 @@ val json: JsonPlugin[_]
 ```
 work方法定义了任务如何依靠注入的组件干活，实现类不用关心这个方法，只需关心具体要注入什么组件。
 
-#### launch加载层
+###### launch加载层
 ```scala
 trait LaunchComponent[R <: NodeTypeWithParam, U] {
   this: DBPluginComponent with LoggerComponent =>
@@ -166,7 +166,7 @@ workResultHandler方法描述如何处理所有job组件的处理结果，需要
 ### 接口实现
 再看一下每个层次是如何实现接口的，由于模块较多，json解析层和job任务执行层只挑选其中一个模块做说明。
 
-#### 数据访问层mongodb组件 MongoDBComponent
+###### 数据访问层mongodb组件 MongoDBComponent
 ```scala
 trait MongoDBComponent extends DBPluginComponent {
   class MongoDB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
@@ -205,7 +205,7 @@ trait MongoDBComponent extends DBPluginComponent {
 ```
 下游的组件没什么特别的，就是根据自身的特性，实现接口中的方法，这里是使用了"mongo-scala-driver"驱动实现的访问mongodb的方法。
 
-#### 数据访问层dummy测试组件 DummyBComponent
+###### 数据访问层dummy测试组件 DummyBComponent
 ```scala
 trait DummyDBComponent extends DBPluginComponent {
   class MongoDB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
@@ -234,9 +234,9 @@ trait DummyDBComponent extends DBPluginComponent {
 ```
 这个实现是为了开发过程中测试用的，
 因为在开发完json解析的job部分后，我测试时只想读出我需要的旧版json参数，但不想真正更新数据库。
-于是我只需将这个Dummy组件注入到launch层的实现Launcher，其他代码不变，就可达到目的。
+于是我只需将这个Dummy组件注入到launch层的实现Launcher，其他代码不变，就可达到测试目的。
 
-#### json解析层列加密模块组件 ColumnEncryptJsonComponent
+###### json解析层列加密模块组件 ColumnEncryptJsonComponent
 ```scala
 trait ColumnEncryptJsonComponent extends JsonPluginComponent {
   class ColumnEncryptJson extends JsonPlugin[OldColumnEncryptParam] {
@@ -264,7 +264,7 @@ trait ColumnEncryptJsonComponent extends JsonPluginComponent {
 ```
 这个就是列加密模块json解析转换的具体实现，没啥可说的，看代码。
 
-#### job执行任务层列加密模块组件 ColumnEncryptJob
+###### job执行任务层列加密模块组件 ColumnEncryptJob
 ```scala
 class ColumnEncryptJob extends JobComponent[MongoWorkFlowParam]
   with ColumnEncryptJsonComponent {
@@ -273,7 +273,7 @@ class ColumnEncryptJob extends JobComponent[MongoWorkFlowParam]
 ```
 这个就是列加密模块job层的实现，其中注入了列加密模块的json解析组件。
 
-#### launch加载层的具体实现组件 Launcher
+###### launch加载层的具体实现组件 Launcher
 ```scala
 class Launcher extends LaunchComponent[MongoWorkFlowParam, BulkWriteResult]
   with MongoDBComponent with Log4jLoggerComponent {
@@ -295,7 +295,7 @@ workResultHandler方法中处理了将所有job组件生成的新版json批量�
 上面已经完整的演示了如何只依靠Scala的语言特性实现高逼格的依赖注入。
 下面我们来看看咱们实现的依赖注入，是如何快速解决文章开头提出的几个未来可能变化的需求的。
 
-#### 如果以后出了一款新的mongodb驱动，性能超好，想替换现有db读取逻辑呢？
+###### 如果以后出了一款新的mongodb驱动，性能超好，想替换现有db读取逻辑呢？
 1. 新写一个数据访问层mongodb组件 MongoDBV2Component
 2. 将新写的MongoDBV2Component组件注入到加载层具体实现的Launcher
    将原有组件的注入代码
@@ -308,16 +308,16 @@ workResultHandler方法中处理了将所有job组件生成的新版json批量�
    ```
 3. 修改泛型需要的数据类型（也可能不用修改）
 
-#### 如果以后mongodb换成了mysql呢？
+###### 如果以后mongodb换成了mysql呢？
 与上面问题的解决方案基本一致，只不过是新写一个针对mysql的数据访问层组件即可
 
-#### 如果以后出了一款新的json解析库，性能超好，想替换现有json处理逻辑呢？
+###### 如果以后出了一款新的json解析库，性能超好，想替换现有json处理逻辑呢？
 1. 每个模块新写一个使用新解析库实现的json解析层的组件 
    这一步的工作省不了，因为每个模块的json都是定制的。
 2. 将1中新写的组件替换原有json解析组件，注入到对应的job实现中
 3. 修改泛型需要的数据类型（也可能不用修改）
 
-#### 如果以后想部分模块增加一个将json转换成xml的逻辑呢
+###### 如果以后想部分模块增加一个将json转换成xml的逻辑呢
 1. 新增一个xml解析层和接口，使用trait嵌套的方式，定义将要被注入的xml解析组件依赖
 2. 使用一种xml解析库实现1中的接口
 3. 在需要json转xml的job中，将xml解析实现组件注入进去，比如
@@ -330,7 +330,7 @@ workResultHandler方法中处理了将所有job组件生成的新版json批量�
    ```
 4. 修改job实现代码，override work方法，定制自己的任务处理逻辑，即旧版json-》新版json-》新版xml。
 
-#### 如果以后不想用log4j写日志了，而是想采用自己开发的一个模块将日志输出到hdfs呢？
+###### 如果以后不想用log4j写日志了，而是想采用自己开发的一个模块将日志输出到hdfs呢？
 1. 新写一个日志输出层的组件，里面包含日志输出到hdfs的逻辑
 2. 修改launch层实现Launcher代码，将1中的组件注入进去，比如
     ```scala
@@ -344,13 +344,14 @@ workResultHandler方法中处理了将所有job组件生成的新版json批量�
 
 
 ### 总结
-通过上面的讲解，大家应该已经学会了如何使用Cake模式在Scala中实现高逼格的依赖注入，这个也算是scala的高阶应用了，
+通过上面的讲解，大家应该已经学会了如何使用Cake模式在Scala中实现高逼格的依赖注入，而且认识到其强大的解耦能力和易扩展已维护的能力，
 但是这个目的也只是一个浅层次的目的，会使用Cake模式不代表你就能设计出优秀的程序。
 通过这个案例大家应该学会该如何设计自己的程序，小到一个模块、一个接口的设计，大到一个系统、一个平台的设计。
 通过上面的过程大家有没有总结出我设计程序的方式呢？我先来总结几点，
 1. 需求分析，这一步很重要，这一步错后面也许就要重构了
-2. 思考如何设计可以让程序变得易扩展、易维护
+2. 思考如何设计可以让程序变得易扩展、易维护，当然还要考虑性能
 3. 学会分层设计，复杂问题简单化
 4. 尽量高层次的抽象
-5. 将共通的逻辑都合并到一处处理，只让下游实现定制化内容
+5. 将共通的逻辑都抽象到一处处理，只让下游实现定制化内容
 
+具体代码可以从github获取：https://github.com/deanzz/json-transformer
