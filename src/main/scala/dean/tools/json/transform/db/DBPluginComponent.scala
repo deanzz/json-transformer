@@ -5,13 +5,8 @@ import dean.tools.json.transform.NodeType
 import scala.concurrent.Future
 
 trait DBPluginComponent {
-
   trait DBPlugin[R, U]{
     def queryByNodeTypes(nodeTypes: Seq[NodeType]): Future[Seq[R]]
-
-    def updateManyParam(workflowWithParamSeq: Seq[(R, String)]): Future[U]
+    def bulkUpdateParam(workflowWithParamSeq: Seq[(R, String)]): Future[U]
   }
-
-
-
 }

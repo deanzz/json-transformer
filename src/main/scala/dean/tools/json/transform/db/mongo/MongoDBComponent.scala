@@ -49,7 +49,7 @@ trait MongoDBComponent extends DBPluginComponent {
       }
     }
 
-    override def updateManyParam(workflowWithParamSeq: Seq[(MongoWorkFlowParam, String)]): Future[BulkWriteResult] = {
+    override def bulkUpdateParam(workflowWithParamSeq: Seq[(MongoWorkFlowParam, String)]): Future[BulkWriteResult] = {
 
       /*val seq = workflowWithParamSeq.filterNot(_._2.contains("specifiedColumns")).map{
         case (w, s) =>

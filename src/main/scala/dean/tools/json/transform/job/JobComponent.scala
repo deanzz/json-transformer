@@ -3,7 +3,7 @@ package dean.tools.json.transform.job
 import dean.tools.json.transform.db.NodeTypeWithParam
 import dean.tools.json.transform.json.JsonPluginComponent
 
-trait JobComponent[R <: NodeTypeWithParam, U] {
+trait JobComponent[R <: NodeTypeWithParam] {
   this: JsonPluginComponent =>
 
   val json: JsonPlugin[_]

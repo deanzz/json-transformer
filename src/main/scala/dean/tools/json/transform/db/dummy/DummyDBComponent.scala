@@ -42,7 +42,7 @@ trait DummyDBComponent extends DBPluginComponent {
       }
     }
 
-    override def updateManyParam(workflowWithParamSeq: Seq[(MongoWorkFlowParam, String)]): Future[BulkWriteResult] = {
+    override def bulkUpdateParam(workflowWithParamSeq: Seq[(MongoWorkFlowParam, String)]): Future[BulkWriteResult] = {
       Future(BulkWriteResult.unacknowledged())
     }
   }
