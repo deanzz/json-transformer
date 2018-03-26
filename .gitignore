@@ -2,3 +2,4 @@ target
 project/target
 .idea
 logs
+application.conf
