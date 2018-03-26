@@ -9,7 +9,7 @@ import scala.concurrent.duration._
 
 class Launcher extends LaunchComponent[MongoWorkFlowParam, BulkWriteResult]
   with MongoDBComponent with Log4jLoggerComponent {
-  override val db: DBPlugin[MongoWorkFlowParam, BulkWriteResult] = new MongoDB
+  override val db: DBPlugin[MongoWorkFlowParam, BulkWriteResult] = new DB
   override val logger = new Log4jLogger(this.getClass)
 
   override def workResultHandler(seq: Seq[(MongoWorkFlowParam, String)]): Unit = {

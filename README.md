@@ -169,7 +169,7 @@ workResultHandler方法描述如何处理所有job组件的处理结果，需要
 ###### 数据访问层mongodb组件 MongoDBComponent
 ```scala
 trait MongoDBComponent extends DBPluginComponent {
-  class MongoDB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
+  class DB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
     private val uri = ConfigurationFactory.get.getString("db.mongo.uri")
     private val dbName = ConfigurationFactory.get.getString("db.mongo.dbName")
     private val db = MongoClient(uri).getDatabase(dbName)
@@ -208,7 +208,7 @@ trait MongoDBComponent extends DBPluginComponent {
 ###### 数据访问层dummy测试组件 DummyDBComponent
 ```scala
 trait DummyDBComponent extends DBPluginComponent {
-  class MongoDB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
+  class DB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
     private val uri = ConfigurationFactory.get.getString("db.mongo.uri")
     private val dbName = ConfigurationFactory.get.getString("db.mongo.dbName")
     private val db = MongoClient(uri).getDatabase(dbName)
@@ -277,7 +277,7 @@ class ColumnEncryptJob extends JobComponent[MongoWorkFlowParam]
 ```scala
 class Launcher extends LaunchComponent[MongoWorkFlowParam, BulkWriteResult]
   with MongoDBComponent with Log4jLoggerComponent {
-  override val db: DBPlugin[MongoWorkFlowParam, BulkWriteResult] = new MongoDB
+  override val db: DBPlugin[MongoWorkFlowParam, BulkWriteResult] = new DB
   override val logger = new Log4jLogger(this.getClass)
   override def workResultHandler(seq: Seq[(MongoWorkFlowParam, String)]): Unit = {
     val start = System.currentTimeMillis()

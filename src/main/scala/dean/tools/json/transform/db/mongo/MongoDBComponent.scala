@@ -18,7 +18,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait MongoDBComponent extends DBPluginComponent {
 
-  class MongoDB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
+  class DB extends DBPlugin[MongoWorkFlowParam, BulkWriteResult] {
     private val uri = ConfigurationFactory.get.getString("db.mongo.uri")
     private val dbName = ConfigurationFactory.get.getString("db.mongo.dbName")
     private val db = MongoClient(uri).getDatabase(dbName)
