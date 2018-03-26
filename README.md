@@ -181,7 +181,6 @@ trait MongoDBComponent extends DBPluginComponent {
       fromProviders(classOf[MongoWorkFlowParam])
     )
     private val collection = db.getCollection[MongoWorkFlowParam](collectionName).withCodecRegistry(codecRegistry)
-    private val documentCollection = db.getCollection[Document](collectionName)
     override def queryByNodeTypes(nodeTypes: Seq[NodeType]): Future[Seq[MongoWorkFlowParam]] = {
       if (nodeTypes.isEmpty) Future(Seq.empty[MongoWorkFlowParam])
       else {
@@ -194,11 +193,11 @@ trait MongoDBComponent extends DBPluginComponent {
       }
     }
     override def bulkUpdateParam(workflowWithParamSeq: Seq[(MongoWorkFlowParam, String)]): Future[BulkWriteResult] = {
-      val writes: Seq[WriteModel[_ <: Document]] = workflowWithParamSeq.map{
+      val writes: Seq[WriteModel[_ <: MongoWorkFlowParam]] = workflowWithParamSeq.map{
         case (w, newJson) =>
-          UpdateOneModel(Document("_id" -> w._id), set("param", newJson))
+          UpdateOneModel(equal("_id", w._id), set("param", newJson))
       }
-      documentCollection.bulkWrite(writes).toFuture()
+      collection.bulkWrite(writes).toFuture()
     }
   }
 }

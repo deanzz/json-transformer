@@ -6,9 +6,8 @@ import dean.tools.json.transform.db.DBPluginComponent
 import org.bson.codecs.configuration.CodecRegistries.{fromCodecs, fromProviders, fromRegistries}
 import org.bson.codecs.configuration.CodecRegistry
 import org.mongodb.scala.{BulkWriteResult, MongoClient}
-import org.mongodb.scala.bson.Document
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
-import org.mongodb.scala.model.Filters.{and, in, notEqual}
+import org.mongodb.scala.model.Filters.{and, in, notEqual, equal}
 import org.mongodb.scala.model.Projections.include
 import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model.{UpdateOneModel, WriteModel}
@@ -33,7 +32,6 @@ trait MongoDBComponent extends DBPluginComponent {
     )
 
     private val collection = db.getCollection[MongoWorkFlowParam](collectionName).withCodecRegistry(codecRegistry)
-    private val documentCollection = db.getCollection[Document](collectionName)//.withCodecRegistry(codecRegistry)
 
     //val log = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
@@ -57,12 +55,12 @@ trait MongoDBComponent extends DBPluginComponent {
       }.mkString("\n")
       log.info(s"workflowWithParamSeq:\n$seq")*/
 
-      val writes: Seq[WriteModel[_ <: Document]] = workflowWithParamSeq.map{
+      val writes: Seq[WriteModel[_ <: MongoWorkFlowParam]] = workflowWithParamSeq.map{
         case (w, newJson) =>
-          UpdateOneModel(Document("_id" -> w._id), set("param", newJson))
+          UpdateOneModel(equal("_id", w._id), set("param", newJson))
       }
 
-      documentCollection.bulkWrite(writes).toFuture()
+      collection.bulkWrite(writes).toFuture()
     }
   }
 
