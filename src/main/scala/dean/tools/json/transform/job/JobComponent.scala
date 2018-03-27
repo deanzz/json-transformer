@@ -1,6 +1,6 @@
 package dean.tools.json.transform.job
 
-import dean.tools.json.transform.db.NodeTypeWithParam
+import dean.tools.json.transform.dao.NodeTypeWithParam
 import dean.tools.json.transform.json.JsonPluginComponent
 
 trait JobComponent[R <: NodeTypeWithParam] {

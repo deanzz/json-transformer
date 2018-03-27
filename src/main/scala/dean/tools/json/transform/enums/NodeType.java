@@ -1,4 +1,4 @@
-package dean.tools.json.transform;
+package dean.tools.json.transform.enums;
 
 public enum NodeType {
 

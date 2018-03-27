@@ -1,6 +1,6 @@
-package dean.tools.json.transform.db.mongo;
+package dean.tools.json.transform.dao.mongo.codec;
 
-import dean.tools.json.transform.NodeType;
+import dean.tools.json.transform.enums.NodeType;
 import org.bson.BsonReader;
 import org.bson.BsonWriter;
 import org.bson.codecs.Codec;
