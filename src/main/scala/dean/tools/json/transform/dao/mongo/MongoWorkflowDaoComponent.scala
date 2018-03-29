@@ -7,7 +7,7 @@ import dean.tools.json.transform.enums.NodeType
 import org.bson.codecs.configuration.CodecRegistries.{fromCodecs, fromProviders, fromRegistries}
 import org.bson.codecs.configuration.CodecRegistry
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
-import org.mongodb.scala.model.Filters.{and, equal, in, notEqual}
+import org.mongodb.scala.model.Filters.{and, equal, in, notEqual, not, regex}
 import org.mongodb.scala.model.Projections.include
 import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model.{UpdateOneModel, WriteModel}
@@ -40,7 +40,8 @@ trait MongoWorkflowDaoComponent extends MongoDaoComponent with MongoDBComponent{
             notEqual("param", ""),
             notEqual("param", "[]"),
             notEqual("param", null),
-            notEqual("param", "{}"))).projection(include("id" ,"nodeType", "param")).toFuture()
+            notEqual("param", "{}"),
+            not(regex("param", "isSpecified")))).projection(include("id" ,"nodeType", "param")).toFuture()
       }
     }
 

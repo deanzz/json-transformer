@@ -8,7 +8,7 @@ import dean.tools.json.transform.enums.NodeType
 import org.bson.codecs.configuration.CodecRegistries.{fromCodecs, fromProviders, fromRegistries}
 import org.bson.codecs.configuration.CodecRegistry
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
-import org.mongodb.scala.model.Filters.{and, elemMatch, equal, in, notEqual}
+import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model.Projections.include
 import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model.{UpdateOneModel, WriteModel}
@@ -44,7 +44,8 @@ trait MongoIntegrationConfigDaoComponent extends MongoDaoComponent with MongoDBC
                 notEqual("param", ""),
                 notEqual("param", "[]"),
                 notEqual("param", "{}"),
-                notEqual("param", null))))).projection(include("miniGraph") /*Projections.elemMatch("miniGraph")*/).toFuture().map {
+                notEqual("param", null),
+                not(regex("param", "isSpecified")))))).projection(include("miniGraph") /*Projections.elemMatch("miniGraph")*/).toFuture().map {
           seq =>
             seq.flatMap {
               integration =>
