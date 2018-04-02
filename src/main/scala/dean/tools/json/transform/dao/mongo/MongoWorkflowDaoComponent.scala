@@ -38,7 +38,7 @@ trait MongoWorkflowDaoComponent extends MongoDaoComponent with MongoDBComponent{
         collection.find(
           and(in("nodeType", nodeTypes: _*),
             notEqual("param", ""),
-            notEqual("param", "[]"),
+            not(equal("param", "[]")),
             notEqual("param", null),
             notEqual("param", "{}"),
             not(regex("param", "isSpecified")))).projection(include("id" ,"nodeType", "param")).toFuture()

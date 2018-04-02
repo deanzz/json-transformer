@@ -41,15 +41,25 @@ trait MongoIntegrationConfigDaoComponent extends MongoDaoComponent with MongoDBC
           and(equal("type", "CUSTOM"),
             elemMatch("miniGraph",
               and(in("nodeType", nodeTypes: _*),
+                // 对于数组中对象的字段，下列条件没起作用，不知为何，有空研究一下
                 notEqual("param", ""),
-                notEqual("param", "[]"),
+                not(equal("param", "[]")),
                 notEqual("param", "{}"),
                 notEqual("param", null),
                 not(regex("param", "isSpecified")))))).projection(include("miniGraph") /*Projections.elemMatch("miniGraph")*/).toFuture().map {
           seq =>
             seq.flatMap {
               integration =>
-                integration.miniGraph.filter(g => g.nodeType.isDefined && nodeTypes.contains(g.nodeType.get)).map {
+                integration.miniGraph.filter(
+                  g => g.nodeType.isDefined &&
+                    nodeTypes.contains(g.nodeType.get) &&
+                    g.param.isDefined &&
+                    g.param.get != "[]" &&
+                    g.param.get != "{}" &&
+                    g.param.get != "" &&
+                    g.param.get != null &&
+                    !g.param.get.contains("isSpecified")
+                ).map {
                   miniGraph =>
                     IntegrationConfigParam(integration._id, miniGraph.key, miniGraph.nodeType.get, miniGraph.param.get)
                 }

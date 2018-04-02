@@ -17,7 +17,7 @@ class WorkflowLauncher extends LaunchComponent[MongoWorkFlowParam, BulkWriteResu
   override def workResultHandler(seq: Seq[(MongoWorkFlowParam, String)]): Unit = {
     val start = System.currentTimeMillis()
     val future = dao.bulkUpdateParam(seq)
-    val result = Await.result(future, 300 second)
+    val result = Await.result(future, 1800 second)
     val finished = System.currentTimeMillis()
     logger.info(s"Workflow: Elapsed time = ${finished - start}ms, MatchedCount = ${result.getMatchedCount}, ModifiedCount = ${result.getModifiedCount}, DeletedCount = ${result.getDeletedCount}, InsertedCount = ${result.getInsertedCount}")
   }

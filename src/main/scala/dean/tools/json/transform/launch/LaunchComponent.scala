@@ -20,7 +20,7 @@ trait LaunchComponent[R <: NodeTypeWithParam, U] {
     val filterNodesConfMap: Map[NodeType, String] = ConfigurationFactory.get.getConfigList("filter.nodes").asScala.map(FilterNode.apply).toMap
     val nodeJobMap = new mutable.HashMap[NodeType, JobComponent[R]]
     val filterNodeTypes = filterNodesConfMap.keys.toSeq
-    val filterNodes = Await.result(dao.queryByNodeTypes(filterNodeTypes), 60 second)
+    val filterNodes = Await.result(dao.queryByNodeTypes(filterNodeTypes), 300 second)
     logger.info(s"QueriedCount = ${filterNodes.size}")
 
     val newParamSeq = filterNodes.map {

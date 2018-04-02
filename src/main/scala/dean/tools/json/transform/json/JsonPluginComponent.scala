@@ -8,6 +8,7 @@ import scala.util.Try
 trait JsonPluginComponent {
   trait JsonPlugin[O] {
     def fromOld(jsonStr: String): O = {
+      //println(s"jsonStr: $jsonStr")
       val json = Try(JSON.parseArray(jsonStr).getJSONObject(0)).getOrElse(JSON.parseObject(jsonStr))
       fromOld(json)
     }
